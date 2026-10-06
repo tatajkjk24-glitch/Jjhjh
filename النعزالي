@@ -1,0 +1,587 @@
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Player = LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local ContextActionService = game:GetService("ContextActionService")
+local GuiService = game:GetService("GuiService")
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
+
+local Lighting = game:GetService("Lighting")
+local PathfindingService = game:GetService("PathfindingService")
+local PhysicsService = game:GetService("PhysicsService")
+local SoundService = game:GetService("SoundService")
+
+local StarterGui = game:GetService("StarterGui")
+local StarterPack = game:GetService("StarterPack")
+local StarterPlayer = game:GetService("StarterPlayer")
+
+local ContentProvider = game:GetService("ContentProvider")
+local InsertService = game:GetService("InsertService")
+
+local Chat = game:GetService("Chat")
+local TextService = game:GetService("TextService")
+
+local DataStoreService = game:GetService("DataStoreService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local BadgeService = game:GetService("BadgeService")
+local GroupService = game:GetService("GroupService")
+
+local HapticService = game:GetService("HapticService")
+local VRService = game:GetService("VRService")
+local PolicyService = game:GetService("PolicyService")
+local Stats = game:GetService("Stats")
+local LocalizationService = game:GetService("LocalizationService")
+
+local Debris = game:GetService("Debris")
+local CollectionService = game:GetService("CollectionService")
+local Selection = game:GetService("Selection")
+local ProximityPromptService = game:GetService("ProximityPromptService")
+local TestService = game:GetService("TestService")
+local LogService = game:GetService("LogService")
+local Camera = workspace.CurrentCamera
+
+-- =========================================================
+-- 1. شاشة الترحيب (Intro - الانعزالي)
+-- =========================================================
+local IntroGui = Instance.new("ScreenGui")
+IntroGui.Name = "Inizali_HUB_Intro"
+IntroGui.ResetOnSpawn = false
+IntroGui.DisplayOrder = 999999
+
+if syn and syn.protect_gui then
+    syn.protect_gui(IntroGui)
+    IntroGui.Parent = CoreGui
+elseif gethui then
+    IntroGui.Parent = gethui()
+else
+    IntroGui.Parent = CoreGui
+end
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(1, 0, 1, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(152, 251, 152)
+MainFrame.BackgroundTransparency = 1
+MainFrame.Parent = IntroGui
+
+local UIGradient = Instance.new("UIGradient")
+UIGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(5, 15, 10)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(20, 45, 30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(5, 15, 10))
+})
+UIGradient.Rotation = 45
+UIGradient.Parent = MainFrame
+
+local Container = Instance.new("Frame")
+Container.Size = UDim2.new(0, 350, 0, 150)
+Container.Position = UDim2.new(0.5, -175, 0.5, -75)
+Container.BackgroundTransparency = 1
+Container.Parent = MainFrame
+
+local Text96 = Instance.new("TextLabel")
+Text96.Size = UDim2.new(1, 0, 0, 40)
+Text96.Position = UDim2.new(0, 0, 0, 10)
+Text96.BackgroundTransparency = 1
+Text96.Text = "تيم الانعزالي HUB"
+Text96.TextColor3 = Color3.fromRGB(46, 204, 113)
+Text96.TextSize = 28
+Text96.Font = Enum.Font.FredokaOne
+Text96.TextTransparency = 1
+Text96.Parent = Container
+
+local LoadingText = Instance.new("TextLabel")
+LoadingText.Size = UDim2.new(1, 0, 0, 40)
+LoadingText.Position = UDim2.new(0, 0, 0, 60)
+LoadingText.BackgroundTransparency = 1
+LoadingText.Text = "جاري تحميل سكربت تيم الانعزالي..."
+LoadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadingText.TextSize = 22
+LoadingText.Font = Enum.Font.GothamBold
+LoadingText.TextTransparency = 1
+LoadingText.Parent = Container
+
+task.spawn(function()
+    local tweenInfo = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(MainFrame, tweenInfo, {BackgroundTransparency = 0.15}):Play()
+    TweenService:Create(Text96, tweenInfo, {TextTransparency = 0}):Play()
+    TweenService:Create(LoadingText, tweenInfo, {TextTransparency = 0}):Play()
+
+    task.wait(2)
+
+    local fadeOut = TweenService:Create(MainFrame, tweenInfo, {BackgroundTransparency = 1})
+    TweenService:Create(Text96, tweenInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(LoadingText, tweenInfo, {TextTransparency = 1}):Play()
+    fadeOut:Play()
+    fadeOut.Completed:Connect(function()
+        IntroGui:Destroy()
+    end)
+end)
+
+-- =========================================================
+-- 2. إعداد وتحميل مكتبة الواجهة الأساسية (UI Library)
+-- =========================================================
+local Libary = loadstring(game:HttpGet("https://pastefy.app/TmYkexTc/raw"))()
+workspace.FallenPartsDestroyHeight = -math.huge
+
+local Owners = {
+    ["Ghost_141889"] = true,
+}
+
+local Admins = {}
+
+local Window = Libary:MakeWindow({
+    Title = "تيم الانعزالي",
+    SubTitle = "By الانعزالي V1",
+    LoadText = "الانعزالي The Beast",
+    Flags = "InizaliHub_Brookhaven"
+})
+
+Window:AddMinimizeButton({
+    Button = { Image = "rbxassetid://121151669301975", BackgroundTransparency = 0 },
+    Corner = { CornerRadius = UDim.new(35, 1) },
+})
+
+-- =========================================================
+-- 3. أقسام ومميزات السكربت
+-- =========================================================
+
+-- [التاب 1]: الحقوق والمرتب
+local InfoTab = Window:MakeTab({ Title = "الحقوق + الرتب", Icon = "rbxassetid://121151669301975" })
+
+InfoTab:AddSection({ Name = "معلومات السكربت" })
+InfoTab:AddParagraph({ "المطور الرئيسي: الانعزالي" })
+InfoTab:AddParagraph({ "حقوق السكربت: حقوق الانعزالي" })
+InfoTab:AddParagraph({ "GUI: تيم الانعزالي" })
+InfoTab:AddParagraph({ "🤓تم صنع وتطوير السكربت بواسطة الانعزالي🤓" })
+InfoTab:AddParagraph({ "😍اتمنى ان سكربت تيم الانعزالي نال على اعجابكم😍" })
+
+InfoTab:AddSection({ Name = "الرتب" })
+
+local TagEnabled = true
+local VipRainbowConnection = nil
+local ActiveTags = {}
+
+local function removeTag(plr)
+    if plr and plr.Character then
+        local t = plr.Character:FindFirstChild("NameTag")
+        if t then
+            t:Destroy()
+            ActiveTags[plr.UserId] = nil
+        end
+    end
+end
+
+local function createTag(plr)
+    if not TagEnabled or not plr or not plr.Character or ActiveTags[plr.UserId] then return end
+
+    local head = plr.Character:FindFirstChild("Head")
+    if not head then return end
+
+    removeTag(plr)
+
+    local role = "عضو"
+    if Owners[plr.Name] then
+        role = "مطور"
+    elseif Admins[plr.Name] then
+        role = "VIP"
+    end
+
+    local gui = Instance.new("BillboardGui")
+    gui.Name = "NameTag"
+    gui.Adornee = head
+    gui.Parent = plr.Character
+    gui.Size = UDim2.new(4, 0, 1.5, 0)
+    gui.StudsOffset = Vector3.new(0, 3.5, 0)
+    gui.AlwaysOnTop = true
+
+    local frame = Instance.new("Frame", gui)
+    frame.Size = UDim2.new(1, 0, 1, 0)
+    frame.BackgroundTransparency = 0.1
+    frame.BorderSizePixel = 0
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
+
+    local gradient = Instance.new("UIGradient", frame)
+    gradient.Rotation = 90
+
+    local stroke = Instance.new("UIStroke", frame)
+    stroke.Thickness = 2
+
+    local label = Instance.new("TextLabel", frame)
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextScaled = true
+    label.Font = Enum.Font.GothamBold
+    label.Text = role
+    
+    if role == "مطور" then
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+            ColorSequenceKeypoint.new(0.5, Color3.fromRGB(152, 251, 152)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+        }
+        stroke.Color = Color3.fromRGB(46, 204, 113)
+        stroke.Thickness = 3
+        label.TextColor3 = Color3.fromRGB(46, 204, 113)
+    elseif role == "VIP" then
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 0, 0))
+        }
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        
+        local rainbowColors = {
+            Color3.fromRGB(255, 0, 0), Color3.fromRGB(255, 255, 0), Color3.fromRGB(0, 255, 0),
+            Color3.fromRGB(0, 255, 255), Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 0, 255),
+            Color3.fromRGB(255, 165, 0), Color3.fromRGB(255, 20, 147)
+        }
+        
+        local index = 1
+        if VipRainbowConnection then
+            VipRainbowConnection:Disconnect()
+            VipRainbowConnection = nil
+        end
+        
+        VipRainbowConnection = RunService.Heartbeat:Connect(function()
+            if not TagEnabled then
+                if VipRainbowConnection then
+                    VipRainbowConnection:Disconnect()
+                    VipRainbowConnection = nil
+                end
+                return
+            end
+            if stroke and stroke.Parent then
+                stroke.Color = rainbowColors[index]
+                index = (index % #rainbowColors) + 1
+            end
+            task.wait(0.5)
+        end)
+    else
+        gradient.Color = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(180, 0, 0)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 0, 0))
+        }
+        stroke.Color = Color3.fromRGB(0, 0, 0)
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end
+    
+    ActiveTags[plr.UserId] = true
+end
+
+local function updateAllTags()
+    for _, plr in ipairs(Players:GetPlayers()) do
+        createTag(plr)
+    end
+end
+
+InfoTab:AddToggle({
+    Name = "إظهار الرتب فوق اللاعبين",
+    Default = true,
+    Callback = function(state)
+        TagEnabled = state
+        if state then
+            updateAllTags()
+        else
+            if VipRainbowConnection then
+                VipRainbowConnection:Disconnect()
+                VipRainbowConnection = nil
+            end
+            for _, plr in ipairs(Players:GetPlayers()) do
+                removeTag(plr)
+            end
+            ActiveTags = {}
+        end
+    end
+})
+
+for _, plr in ipairs(Players:GetPlayers()) do
+    createTag(plr)
+    plr.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        if TagEnabled then createTag(plr) end
+    end)
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        if TagEnabled then createTag(plr) end
+    end)
+    task.wait(0.5)
+    createTag(plr)
+end)
+
+Players.PlayerRemoving:Connect(function(plr)
+    removeTag(plr)
+    ActiveTags[plr.UserId] = nil
+end)
+
+-- [التاب 2]: الأفاتار والملابس
+local TabAvatar = Window:MakeTab({ Title = "الأفاتار والملابس", Icon = "rbxassetid://137629856266377" })
+
+TabAvatar:AddSection({ Name = "نسخ سكنات اللاعبين" })
+
+local selectedTargetToCopy = ""
+
+local function getPlayersListForCopy()
+    local names = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer then table.insert(names, p.Name) end
+    end
+    return names
+end
+
+local CopyDropdown = TabAvatar:AddDropdown({
+    Name = "اختر لاعب لنسخ سكنه",
+    Options = getPlayersListForCopy(),
+    Default = "",
+    Callback = function(Value)
+        selectedTargetToCopy = Value
+    end
+})
+
+TabAvatar:AddButton({
+    Name = "نسخ سكن اللاعب المحدد",
+    Callback = function()
+        pcall(function()
+            local target = Players:FindFirstChild(selectedTargetToCopy)
+            if target and target.Character and target.Character:FindFirstChildOfClass("Humanoid") then
+                local targetDesc = target.Character:FindFirstChildOfClass("Humanoid"):GetAppliedDescription()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ApplyDescription(targetDesc)
+                    
+                    local remotes = ReplicatedStorage:WaitForChild("Remotes")
+                    if targetDesc.Shirt ~= 0 then remotes.ChangeOutfit:FireServer("Shirt", targetDesc.Shirt) end
+                    if targetDesc.Pants ~= 0 then remotes.ChangeOutfit:FireServer("Pants", targetDesc.Pants) end
+                end
+            end
+        end)
+    end
+})
+
+TabAvatar:AddButton({
+    Name = "تحديث قائمة اللاعبين لنسخ السكن",
+    Callback = function()
+        CopyDropdown:Set(getPlayersListForCopy())
+    end
+})
+
+TabAvatar:AddSection({ Name = "تعديل مظهر الشخصية" })
+
+TabAvatar:AddButton({
+    Name = "رجل القرصان اليمنى (Pirate Leg)",
+    Callback = function()
+        pcall(function()
+            local args = { [1] = "CharacterCustomization", [2] = "RightLeg", [3] = 139607718 }
+            ReplicatedStorage.Remotes.ChangeCharacterBodyPart:FireServer(unpack(args))
+        end)
+    end
+})
+
+TabAvatar:AddButton({
+    Name = "تحويل المظهر إلى ستايل Dark / E-Boy",
+    Callback = function()
+        pcall(function()
+            local remotes = ReplicatedStorage:WaitForChild("Remotes")
+            remotes.ChangeOutfit:FireServer("Shirt", 671239845)
+            remotes.ChangeOutfit:FireServer("Pants", 671240100)
+        end)
+    end
+})
+
+TabAvatar:AddButton({
+    Name = "إعادة المظهر الافتراضي",
+    Callback = function()
+        pcall(function()
+            ReplicatedStorage.Remotes.ResetCharacterAppearance:FireServer()
+        end)
+    end
+})
+
+-- [التاب 3]: البيوت والبيئة
+local TabHouses = Window:MakeTab({ Title = "البيوت والمنازل", Icon = "rbxassetid://137629856266377" })
+
+TabHouses:AddSection({ Name = "تحكم البيوت" })
+
+TabHouses:AddButton({
+    Name = "فتح جميع أبواب البيوت المغلقة",
+    Callback = function()
+        pcall(function()
+            for _, house in ipairs(workspace:GetDescendants()) do
+                if house.Name == "HouseDoor" or house.Name == "Door" then
+                    house.CanCollide = false
+                end
+            end
+        end)
+    end
+})
+
+TabHouses:AddButton({
+    Name = "إزالة جدران البيوت الحامية (House Barriers)",
+    Callback = function()
+        pcall(function()
+            for _, v in ipairs(workspace:GetDescendants()) do
+                if v.Name == "HouseBarrier" or v.Name == "BanBarrier" then
+                    v:Destroy()
+                end
+            end
+        end)
+    end
+})
+
+-- [التاب 4]: السيارات والمركبات
+local TabVehicles = Window:MakeTab({ Title = "السيارات والمركبات", Icon = "rbxassetid://137629856266377" })
+
+TabVehicles:AddSection({ Name = "تحكم المركبات" })
+
+TabVehicles:AddSlider({
+    Name = "سرعة السيارة (Vehicle Speed)", Min = 20, Max = 300, Default = 50,
+    Color = Color3.fromRGB(46, 204, 113), Increment = 5, ValueName = "Speed",
+    Callback = function(Value)
+        pcall(function()
+            if LocalPlayer.Character then
+                local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                if hum and hum.SeatPart and hum.SeatPart:IsA("VehicleSeat") then
+                    hum.SeatPart.MaxSpeed = Value
+                end
+            end
+        end)
+    end
+})
+
+TabVehicles:AddButton({
+    Name = "تلوين جميع السيارات باللون الأسود",
+    Callback = function()
+        pcall(function()
+            local veh = workspace:FindFirstChild("Vehicles")
+            if veh then
+                for _, v in ipairs(veh:GetChildren()) do
+                    for _, part in ipairs(v:GetDescendants()) do
+                        if part:IsA("BasePart") then part.Color = Color3.fromRGB(0, 0, 0) end
+                    end
+                end
+            end
+        end)
+    end
+})
+
+-- [التاب 5]: السيرفر والماب
+local TabServer = Window:MakeTab({ Title = "السيرفر والماب", Icon = "rbxassetid://137629856266377" })
+
+TabServer:AddSection({ Name = "أدوات التنقل والسيرفر" })
+
+TabServer:AddButton({
+    Name = "تنقل لسيرفر فرعي فيه ناس قليل (Server Hop)",
+    Callback = function()
+        pcall(function()
+            local Http = HttpService
+            local TPS = TeleportService
+            local Api = "https://games.roblox.com/v1/games/"
+            local _place = game.PlaceId
+            local _servers = Http:JSONDecode(game:HttpGet(Api .. _place .. "/servers/Public?sortOrder=Asc&limit=100"))
+            for _, s in ipairs(_servers.data) do
+                if s.playing < s.maxPlayers and s.id ~= game.JobId then
+                    TPS:TeleportToPlaceInstance(_place, s.id, LocalPlayer)
+                    break
+                end
+            end
+        end)
+    end
+})
+
+TabServer:AddButton({
+    Name = "إعادة الدخول لنفس السيرفر (Rejoin)",
+    Callback = function()
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, LocalPlayer)
+    end
+})
+
+-- [التاب 6]: المميزات
+local TabFeatures = Window:MakeTab({ Title = "المميزات", Icon = "rbxassetid://137629856266377" })
+
+TabFeatures:AddSection({ Name = "تحسينات الشخصية" })
+
+TabFeatures:AddSlider({
+    Name = "سرعة اللاعب (Speed)", Min = 16, Max = 200, Default = 16,
+    Color = Color3.fromRGB(46, 204, 113), Increment = 1, ValueName = "Speed",
+    Callback = function(Value)
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+            LocalPlayer.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = Value
+        end
+    end
+})
+
+TabFeatures:AddSlider({
+    Name = "قوة القفز (Jump Power)", Min = 50, Max = 300, Default = 50,
+    Color = Color3.fromRGB(46, 204, 113), Increment = 1, ValueName = "Power",
+    Callback = function(Value)
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+            local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            hum.UseJumpPower = true
+            hum.JumpPower = Value
+        end
+    end
+})
+
+local noclipConnection = nil
+TabFeatures:AddToggle({
+    Name = "اختراق الجدران (Noclip)", Default = false,
+    Callback = function(state)
+        if state then
+            noclipConnection = RunService.Stepped:Connect(function()
+                if LocalPlayer.Character then
+                    for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then part.CanCollide = false end
+                    end
+                end
+            end)
+        else
+            if noclipConnection then
+                noclipConnection:Disconnect()
+                noclipConnection = nil
+            end
+        end
+    end
+})
+
+local infiniteJumpConnection = nil
+TabFeatures:AddToggle({
+    Name = "قفز لانهائي (Infinite Jump)", Default = false,
+    Callback = function(state)
+        if state then
+            infiniteJumpConnection = UserInputService.JumpRequest:Connect(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                    LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+                end
+            end)
+        else
+            if infiniteJumpConnection then
+                infiniteJumpConnection:Disconnect()
+                infiniteJumpConnection = nil
+            end
+        end
+    end
+})
+
+local tpToolConnection = nil
+TabFeatures:AddToggle({
+    Name = "أداة النقل بالتأشير (Teleport Tool)", Default = false,
+    Callback = function(state)
+        if state then
+            tpToolConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+                if not gameProcessed and input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    local mouse = LocalPlayer:GetMouse()
+                    if mouse and mouse.Hit and LocalPlayer.Character then
+                        LocalPlayer.Character:MoveTo(mouse.Hit.p)
+                    end
+                end
+            end)
+        else
+            if tpToolConnection then
+ 
